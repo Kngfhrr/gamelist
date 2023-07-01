@@ -1,28 +1,33 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import gamesData from '../../games.json'
 
-export const fetchGames = createAsyncThunk('games/fetchGames', async () => {
-    const response = await fetch('https://demo.softswiss.net/api/games/allowed_desktop');
-    return await response.json();
-});
+import { setCurrencies, setProviders } from '../filters/filtersSlice'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
-const gamesSlice = createSlice({
-    name: 'games',
-    initialState: { games: [], status: 'idle', error: null },
-    reducers: {},
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchGames.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(fetchGames.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.games = action.payload;
-            })
-            // .addCase(fetchGames.rejected, (state, action: PayloadAction<string | null | undefined, string, unknown, Error>) => {
-            //     state.status = 'failed';
-            //     state.error = action.error.message || null;
-            // });
-    },
-});
+export const fetchGames = createAsyncThunk('games/fetchGames', async (_, thunkAPI) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  thunkAPI.dispatch(setProviders(gamesData as any))
+  thunkAPI.dispatch(setCurrencies(gamesData as any))
+  return gamesData
+})
 
-export default gamesSlice.reducer;
+export const gamesSlice = createSlice({
+  name: 'games',
+  initialState: { games: [], status: 'idle', error: null },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchGames.pending, (state) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchGames.fulfilled, (state, action: any) => {
+        state.status = 'succeeded'
+        state.games = action.payload
+      })
+      .addCase(fetchGames.rejected, (state, action: any) => {
+        state.status = 'failed'
+        state.error = action.error.message || null
+      })
+  }
+})
+
+export default gamesSlice.reducer

@@ -1,26 +1,26 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Provider } from 'react-redux'
+import React, { Suspense } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
-function App() {
+import index from './store'
+import Loader from './components/loader'
+
+const App: React.FC = () => {
+  const HomePage = React.lazy(() => import('../src/views/home-page'))
+  const GamePage = React.lazy(() => import('../src/views/game-page'))
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Provider store={index}>
+      <Router>
+        <Suspense fallback={<Loader />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/game/:provider/:slug" element={<GamePage />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </Provider>
+  )
 }
 
-export default App;
+export default App
